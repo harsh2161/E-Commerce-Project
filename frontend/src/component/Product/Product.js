@@ -116,8 +116,6 @@ const Products = () => {
                 />
                 </fieldset>
             </div>
-            {console.log(resultPerPage)}
-            {console.log(count)}
             {resultPerPage < count && (
                 <div className="paginationBox">
                 <Pagination

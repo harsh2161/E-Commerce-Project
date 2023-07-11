@@ -20,26 +20,26 @@ const Home = () => {
         }
         dispatch(getProduct());
     }, [dispatch, error, alert]); 
-  return (
-    <>
-        {loading ? <Loader/>: <>
-        <MetaData title= "E-Commerce"/>
-        <div className="banner">
-            <p>Welcome To Ecommerce</p>
-            <h1>Find Amazing Product Below</h1>
-            <a href="#container">
-                <button>
-                    Scroll
-                </button>
-            </a>
-        </div>
-        <h2 className='homeHeading'>Featured Products</h2>
-        <div className="container" id="container">
-            {products && products.map((product) => <Product key={product._id} product={product}/>)}
-        </div>
-    </>}
-    </>
-  );
+    return (
+        <>
+            {loading ? <Loader/>: <>
+            <MetaData title= "E-Commerce"/>
+            <div className="banner">
+                <p>Welcome To Ecommerce</p>
+                <h1>Find Amazing Product Below</h1>
+                <a href="#container">
+                    <button>
+                        Scroll
+                    </button>
+                </a>
+            </div>
+            <h2 className='homeHeading'>Featured Products</h2>
+            <div className="container" id="container">
+                {products && products.map((product) => <Product key={product._id} product={product}/>)}
+            </div>
+        </>}
+        </>
+    );
 }
 
 export default Home;

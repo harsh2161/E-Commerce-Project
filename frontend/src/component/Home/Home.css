@@ -1,5 +1,8 @@
 .banner {
-    background-image: linear-gradient(to right, #635dc0, #3027ae);
+    background-image: url("../../images/cover.jfif");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
     height: 100vmin;
     display: flex;
     flex-direction: column;
@@ -29,17 +32,18 @@
 .banner > a > button {
     margin-bottom: 5vmax;
     cursor: pointer;
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0);
     border-radius: 10px;
     padding: 1.3vmax;
     transition: all 0.5s;
     width: 13vmax;
     border-width: medium;
+    color: white;
 }
 
 .banner > a > button:hover {
-    background-color: rgba(255, 255, 255, 0);
-    color: white;
+    background-color: white;
+    color: black;
 }
 
 .banner::after {

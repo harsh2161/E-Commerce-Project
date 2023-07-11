@@ -40,7 +40,6 @@ const ResetPassword = () => {
         }
         if(success)
         {
-            console.log("idhar nhi aya");
             alert.success("Password Updated Successfully");
             navigate("/login");
             dispatch({

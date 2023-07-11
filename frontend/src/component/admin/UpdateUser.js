@@ -69,13 +69,11 @@ const UpdateUser = () => {
 
     const updateUserSubmitHandler = (e) => {
         e.preventDefault();
-        console.log("myForm");
         const myForm = {
             "name": name,
             "email": email,
             "role": role
         }
-        console.log(myForm);
         dispatch(updateUser(userId, myForm));
     };
 

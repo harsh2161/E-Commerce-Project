@@ -1,5 +1,4 @@
 export default (url, method, body = null, config = null) => {
-    console.log(body);
     const requestTypesWithBody = ["POST", "PUT"];
 
     return new Promise((resolve, reject) => {
