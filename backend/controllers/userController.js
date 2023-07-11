@@ -4,18 +4,27 @@ const User = require("../models/userModel");
 const sendToken = require("../utils/jwtToken");
 const sendEmail = require("../utils/sendEmail.js");
 const { request, response } = require("express");
+const crypto = require("crypto");
+const cloudinary = require("cloudinary");
 
 exports.registerUser = catchAsyncErrors(async(request, response, next)=> {
+    const myCloud = await cloudinary.uploader.upload(request.body.avatar, {
+        folder: "avatars",
+        width:150,
+        crop:"scale",
+        public_id: `${Date.now()}`,
+        resource_type: "auto",
+    });
     const {name, email, password} = request.body;
     const user = await User.create({
         name,email,password,
         avatar:{
-            public_id:"This is a sample id",
-            url:"profilepicUrl"
+            public_id:myCloud.public_id,
+            url:myCloud.secure_url
         }
     });
 
-    sendToken(user, 201, response);
+    sendToken(user, 200, response);
 });
 
 exports.loginUser = catchAsyncErrors(async (request, response , next)=>{
@@ -32,14 +41,13 @@ exports.loginUser = catchAsyncErrors(async (request, response , next)=>{
     {
         return next(new ErrorHandler("Invalid email or password", 401));
     }
-
-    const isPasswordMatched = user.comparePassword(password);
+    
+    const isPasswordMatched = await user.comparePassword(password);
 
     if(!isPasswordMatched)
     {
         return next(new ErrorHandler("Invalid email or password", 401));
     }
-
     sendToken(user,200, response);
 });
 
@@ -69,7 +77,7 @@ exports.forgotPassword = catchAsyncErrors(async(request, response, next)=>{
 
     await user.save({validateBeforeSave:false});
 
-    const resetPasswordUrl = `${request.protocol}://${request.get("host")}/api/v1/password/reset/${resetToken}`;
+    const resetPasswordUrl = `${request.protocol}://${request.get("host")}/password/reset/${resetToken}`;
 
     const message = `Your password reset token is :- \n\n${resetPasswordUrl}\n\nIf you have not requested this email than, please ignore it`;
 
@@ -93,11 +101,12 @@ exports.forgotPassword = catchAsyncErrors(async(request, response, next)=>{
 
 exports.resetPassword = catchAsyncErrors(async (request, response, next)=> {
     
-    const resetPasswordToken = crypto.createHash("sha256").update(req.params.token).digest("hex");
+    const resetPasswordToken = crypto.createHash("sha256").update(request.params.token).digest("hex");
     const user = await User.findOne({
         resetPasswordToken,
         resetPasswordExpire: {$gt: Date.now()},
     });
+
 
     if(!user)
     {
@@ -158,6 +167,26 @@ exports.updateProfile = catchAsyncErrors(async(request , response , next) => {
         email: request.body.email,
     }
 
+    if(request.body.avatar !== '')
+    {
+        const user = await User.findById(request.user.id);
+        const imageId = user.avatar.public_id;
+        await cloudinary.uploader.destroy(imageId);
+
+        const myCloud = await cloudinary.uploader.upload(request.body.avatar, {
+            folder: "avatars",
+            width:150,
+            crop:"scale",
+            public_id: `${Date.now()}`,
+            resource_type: "auto",
+        });
+
+        newUserData.avatar = {
+            public_id: myCloud.public_id,
+            url: myCloud.secure_url
+        }
+    }
+
     const user = await User.findByIdAndUpdate(request.user.id, newUserData, {
         new: true,
         runValidators: true,
@@ -216,7 +245,7 @@ exports.updateUserRole = catchAsyncErrors(async(request , response , next) => {
         role:request.body.role,
     }
 
-    const user = await User.findByIdAndUpdate(request.params.id, newUserData, {
+    await User.findByIdAndUpdate(request.params.id, newUserData, {
         new: true,
         runValidators: true,
         useFindAndModify: false,
@@ -235,6 +264,10 @@ exports.deleteUser = catchAsyncErrors(async(request , response , next) => {
     {
         return next(ErrorHandler(`User does not exist with Id: ${request.params.id}`));
     }
+
+    const imageId = user.avatar.public_id;
+
+    await cloudinary.v2.uploader.destroy(imageId);
 
     await user.deleteOne();
     
