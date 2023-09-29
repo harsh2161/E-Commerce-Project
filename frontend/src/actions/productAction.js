@@ -73,7 +73,7 @@ export const getProduct =(keyword = "", currentPage = 1, price = [0, 25000], cat
         payload: error.response.data.message,
       });
     }
-  };
+};
 
 export const getAdminProduct = () => async (dispatch) => {
     try {
